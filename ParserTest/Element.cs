@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using ParserTest.Describables;
+
 namespace ParserTest
 {
     public class ElementInstance : IDescribeable

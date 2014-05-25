@@ -7,6 +7,6 @@ namespace ParserTest.Describables
 {
     public interface IDescribeable
     {
-        public DescribedElementInstance GetDescriptionInstance();
+        DescribedElementInstance GetDescriptionInstance();
     }
 }
