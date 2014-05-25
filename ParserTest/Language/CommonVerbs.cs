@@ -18,7 +18,18 @@ namespace ParserTest.Language
 
     public class LookVerb : Verb
     {
+        public LookVerb()
+        {
+            Words.Add("look");
+            Words.Add("view");
 
+            Arguments.Add(ParsedElement.MajorTypes.Noun);
+        }
+
+        public override void Act(string word, List<ParsedElement> Arguments)
+        {
+            base.Act(word, Arguments);
+        }
     }
 
     public class GetVerb : Verb
