@@ -3,27 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using ParserTest.IO;
+using ParserTest.Describables;
+using ParserTest.Viewer;
+
 namespace ParserTest.Parser
 {
     public class VerbElement : ParsedElement
     {
-        public Verb Action = null;
-
-        public List<ParsedElement> RawArguments = new List<ParsedElement>();
+        public VerbInstance Instance = new VerbInstance();
 
         public VerbElement(Verb action)
         {
-            Action = action;
+            Instance.Action = action;
             MajorType = MajorTypes.Verb;
         }
     }
 
     public class CommandParser
     {
+        public static IInputInterface Input;
+        public static IOutputInterface Output;
+
         public static List<Verb> Verbs = new List<Verb>();
         public static List<string> Fillers = new List<string>();
 
-        public static List<ParsedElement> Parse(string line)
+        public static List<ParsedElement> Parse(string line, DescriptionContext environmentContext, ViewerContext playerContext)
         {
             List<ParsedElement> rawElements = new List<ParsedElement>();
             // see if we can figure out what each of these words are and filter the empty ones
@@ -59,19 +64,59 @@ namespace ParserTest.Parser
 
             for (int i = 0; i < rawElements.Count; i++)
             {
-                ParsedElement verb = rawElements[i];
-                if (verb.MajorType == ParsedElement.MajorTypes.Verb)
+                ParsedElement word = rawElements[i];
+                if (word.MajorType == ParsedElement.MajorTypes.Verb)
                 {
-                    List<ParsedElement> verbArgs = ReadToNextVerb(rawElements, ref i);
+                    VerbElement verb = word as VerbElement;
+                    verb.Instance.EnvironmnetContext = environmentContext;
+                    verb.Instance.PlayerContext = playerContext;
+                    verb.Instance.Word = verb.Word;
+
+                    verb.Instance.RawArguments = ReadToNextVerb(rawElements, ref i);
 
                     // lets see what this verb wants
+
+                    // add the top verb to the tree
+                    ElementTree.Add(verb);
                 }
                 else
+                {
+                    ElementTree.Add(word);
                     i++;
+                }
             }
 
-
             return ElementTree;
+        }
+
+        public static bool ProcessActions(List<ParsedElement> elemnts)
+        {
+            bool allGood = true;
+
+            foreach(ParsedElement element in elemnts)
+            {
+                VerbElement verb = element as VerbElement;
+                if (verb == null)
+                {
+                    WriteUnknownError(element.Word);
+                    allGood = false;
+                }
+                else
+                    verb.Instance.Act();
+            }
+
+            return allGood;
+        }
+
+        private static void WriteUnknownError(string word)
+        {
+            Write("I don't know how to " + word);
+        }
+
+        private static void Write(string line)
+        {
+            if (Output != null)
+                Output.OutputIOLine(line);
         }
 
         public static Verb FindVerb(string word)

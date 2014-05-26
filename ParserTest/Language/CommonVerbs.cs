@@ -13,6 +13,9 @@ namespace ParserTest.Language
         public static void SetupLanugage()
         {
             CommandParser.Verbs.Add(new GetVerb());
+            CommandParser.Verbs.Add(new LookVerb());
+            CommandParser.Verbs.Add(new GoVerb());
+            CommandParser.Verbs.Add(new DirectionVerb());
         }
     }
 
@@ -26,9 +29,9 @@ namespace ParserTest.Language
             Arguments.Add(ParsedElement.MajorTypes.Noun);
         }
 
-        public override void Act(string word, List<ParsedElement> Arguments)
+        public override void Act(VerbInstance instance)
         {
-            base.Act(word, Arguments);
+            base.Act(instance);
         }
     }
 
@@ -43,9 +46,9 @@ namespace ParserTest.Language
             Arguments.Add(ParsedElement.MajorTypes.Noun);
         }
 
-        public override void Act(string word, List<ParsedElement> Arguments)
+        public override void Act(VerbInstance instance)
         {
-            base.Act(word, Arguments);
+            base.Act(instance);
         }
     }
 
@@ -59,9 +62,9 @@ namespace ParserTest.Language
             Arguments.Add(ParsedElement.MajorTypes.Name);
         }
 
-        public override void Act(string word, List<ParsedElement> Arguments)
+        public override void Act(VerbInstance instance)
         {
-            base.Act(word, Arguments);
+            base.Act(instance);
         }
 
         protected void GoDirection(DescribedElementInstance.ElementLocations direction)
@@ -80,9 +83,9 @@ namespace ParserTest.Language
             Words.Add("west");
         }
 
-        public override void Act(string word, List<ParsedElement> Arguments)
+        public override void Act(VerbInstance instance)
         {
-            base.Act(word, Arguments);
+            base.Act(instance);
         }
     }
 }

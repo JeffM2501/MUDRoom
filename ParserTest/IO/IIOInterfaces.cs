@@ -5,13 +5,13 @@ using System.Text;
 
 namespace ParserTest.IO
 {
-	interface IInputInterface
+	public interface IInputInterface
 	{
 		bool HasInputIO();
 		string GetInputIOLine();
 	}
 
-	interface IOutputInterface
+	public interface IOutputInterface
 	{
 		void OutputIOLine(string line);
 	}
