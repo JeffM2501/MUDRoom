@@ -49,6 +49,8 @@
     <Compile Include="Describables\DescribedElementDefintion.cs" />
     <Compile Include="IO\ConsoleIO.cs" />
     <Compile Include="IO\IIOInterfaces.cs" />
+    <Compile Include="Language\English.cs" />
+    <Compile Include="Language\ILanguage.cs" />
     <Compile Include="Parser\CommandParser.cs" />
     <Compile Include="Language\CommonVerbs.cs" />
     <Compile Include="Describables\DescriptionContext.cs" />

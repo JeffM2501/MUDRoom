@@ -45,7 +45,7 @@ namespace ParserTest.Describables
 				Write(ContextDescriptor, output);
 			}
 			else
-				TextUtils.English.WriteElement(start, true, output);
+                TextUtils.Language.WriteElement(start, true, output);
 		}
 
 		public void Describe(DescribedElementInstance start)

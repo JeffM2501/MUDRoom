@@ -36,7 +36,7 @@ namespace ParserTest.Describables
 
             if (Adjetives.Count == 0)
             {
-                builder.Append(TextUtils.English.GetQuantityDescritpion(quanity, ElementType, SingleIsPair));
+                builder.Append(TextUtils.Language.GetQuantityDescritpion(quanity, ElementType, SingleIsPair));
                 builder.Append(" ");
                 builder.Append(ElementType);
                 if (quanity > 1 || SingleIsPair)
@@ -44,7 +44,7 @@ namespace ParserTest.Describables
             }
             else
             {
-                builder.Append(TextUtils.English.GetQuantityDescritpion(quanity, Adjetives[0], SingleIsPair));
+                builder.Append(TextUtils.Language.GetQuantityDescritpion(quanity, Adjetives[0], SingleIsPair));
 
                 foreach (string adjetives in Adjetives)
                 {
