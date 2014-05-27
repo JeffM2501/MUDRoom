@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using ParserTest.Parser;
+using ParserTest.IO;
+using ParserTest.Language;
+
 namespace ParserTest.Describables
 {
     public class DescribedElementInstance
@@ -23,6 +27,7 @@ namespace ParserTest.Describables
         public DescribedElementDefintion ElementDefintion;
         public int Quanity = 1;
 
+		public bool DescribeChildren = false;
         public List<DescribedElementInstance> Children = new List<DescribedElementInstance>();
 
         public static DescribedElementInstance Empty = new DescribedElementInstance();
@@ -32,6 +37,27 @@ namespace ParserTest.Describables
     {
         public List<DescribedElementInstance> Elements = new List<DescribedElementInstance>();
 		public string ContextDescriptor = string.Empty;
+
+		public void Describe(DescribedElementInstance start, IOutputInterface output)
+		{
+			if(start == null)
+			{
+				Write(ContextDescriptor, output);
+			}
+			else
+				TextUtils.English.WriteElement(start, true, output);
+		}
+
+		public void Describe(DescribedElementInstance start)
+		{
+			Describe(start,CommandParser.Output);
+		}
+
+		private void Write (string line, IOutputInterface output)
+		{
+			if(output != null && line != string.Empty)
+				output.OutputIOLine(line);
+		}
     }
 
     public class DescribedElementCache

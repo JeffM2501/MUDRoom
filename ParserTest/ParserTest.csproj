@@ -59,7 +59,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Room.cs" />
-    <Compile Include="TextUtils.cs" />
+    <Compile Include="Language\TextUtils.cs" />
     <Compile Include="Viewer\ViewerContext.cs" />
   </ItemGroup>
   <ItemGroup>
