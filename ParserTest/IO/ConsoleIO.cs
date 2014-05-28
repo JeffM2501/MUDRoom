@@ -31,11 +31,26 @@ namespace ParserTest.IO
 
                 if (Console.KeyAvailable)
                 {
-                    char c = Console.ReadKey(false).KeyChar;
-                    if (c == '\r' || c == '\n')
-                        newline = true;
+                    char c = Console.ReadKey(true).KeyChar;
+
+                    if (c == '\b')
+                    {
+                        if (line.Length > 0)
+                        {
+                            line.Remove(line.Length - 1, 1);
+                            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                            Console.Write(' ');
+                            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+                        }
+                    }
                     else
-                        line.Append(c);
+                    {
+                        Console.Write(c);
+                        if (c == '\r' || c == '\n')
+                            newline = true;
+                        else
+                            line.Append(c);
+                    }
                 }
 
                 if (newline)

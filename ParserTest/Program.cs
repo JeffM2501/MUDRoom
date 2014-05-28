@@ -28,6 +28,7 @@ namespace ParserTest
             ConsoleIO console = new ConsoleIO();
             CommandParser.Input = console;
             CommandParser.Output = console;
+            world.Player.Output = console;
             CommandParser.Verbs.Add(new QuitVerb());
           
             console.OutputIOLine("Parser Startup");

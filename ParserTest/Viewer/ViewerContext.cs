@@ -34,5 +34,29 @@ namespace ParserTest.Viewer
             if (Output != null)
                 Output.OutputIOLine(line);
         }
+
+        public DescribedElementInstance Get(DescribedElementInstance item, int quantity)
+        {
+            if (item.Perminant)
+                return null;
+
+            if (OwnedElements.Contains(item))
+            {
+                DescribedElementInstance i = item.Pull(quantity);
+                if (i == item)
+                    OwnedElements.Remove(i);
+
+                return i;
+            }
+
+            return item.Pull(quantity);
+
+        }
+
+        public void Put(DescribedElementInstance item)
+        {
+            item.Parrent = null;
+            OwnedElements.Add(item);
+        }
 	}
 }

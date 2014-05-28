@@ -20,7 +20,9 @@ namespace ParserTest.Parser
         {
             public ParsedElement Argument = null;
             public DescribedElementInstance Element = null;
+            public List<DescribedElementInstance> PossibleElements = new List<DescribedElementInstance>();
             public DescribedElementInstance.ElementLocations Location = DescribedElementInstance.ElementLocations.Middle;
+            public UInt64 Value = UInt64.MaxValue;
         }
 
         public List<ParsedArgument> ParsedArguments = new List<ParsedArgument>();

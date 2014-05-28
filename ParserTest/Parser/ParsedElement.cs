@@ -17,6 +17,7 @@ namespace ParserTest.Parser
             PersonalItem,
             Filler,
             Exit,
+            Quanity,
             Unknown,
         }
 

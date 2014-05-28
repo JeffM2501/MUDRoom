@@ -17,6 +17,11 @@ namespace ParserTest.Parser.Actions
             CommandParser.Verbs.Add(new InspectVerb());
             CommandParser.Verbs.Add(new GoVerb());
             CommandParser.Verbs.Add(new DirectionVerb());
+
+            CommandParser.Verbs.Add(new PutVerb());
+            CommandParser.Verbs.Add(new LookVerb());
+
+            CommandParser.Verbs.Add(new InventoryVerb());
         }
     }
 
@@ -49,13 +54,29 @@ namespace ParserTest.Parser.Actions
         public LookVerb()
         {
             Words.Add("look");
+            Words.Add("whereami");
         }
 
         public override void Act(VerbInstance instance)
         {
+            instance.PlayerContext.Output.OutputIOLine(string.Empty);
             instance.EnvironmnetContext.Describe(null, instance.PlayerContext.Output);
         }
     }
+
+     public class InventoryVerb : Verb
+     {
+         public InventoryVerb()
+         {
+             Words.Add("inventory");
+             Words.Add("inv");
+         }
+
+         public override void Act(VerbInstance instance)
+         {
+             instance.PlayerContext.Describe(null);
+         }
+     }
 
     public class GetVerb : Verb
     {
@@ -70,7 +91,7 @@ namespace ParserTest.Parser.Actions
 
         public override void Act(VerbInstance instance)
         {
-            if (instance.ParsedArguments.Count != 1)
+            if (instance.ParsedArguments.Count < 1)
                 instance.PlayerContext.WriteLine("What do you want to get?");
             else
             {
@@ -84,7 +105,7 @@ namespace ParserTest.Parser.Actions
                     instance.PlayerContext.WriteLine("You can't get the " + element.ElementDefintion.CreateDescription(1));
                 else
                 { 
-                    instance.PlayerContext.OwnedElements.Add(actual);
+                    instance.PlayerContext.Put(actual);
                     instance.PlayerContext.WriteLine("You put " + actual.ElementDefintion.CreateDescription(actual.Quanity) + " in your pack");
                 }
             }
@@ -105,13 +126,24 @@ namespace ParserTest.Parser.Actions
         public override void Act(VerbInstance instance)
         {
             if (instance.ParsedArguments.Count != 1)
-                instance.PlayerContext.WriteLine("What do you want to get?");
+                instance.PlayerContext.WriteLine("What do you want to drop?");
             else
             {
                 if (instance.ParsedArguments[0].Element == null)
-                    instance.PlayerContext.WriteLine("You can't find a " + instance.ParsedArguments[0].Argument.Word + " anywhere");
+                    instance.PlayerContext.WriteLine("You don't seem to have " + instance.ParsedArguments[0].Argument.Word + " on your person");
 
-                instance.EnvironmnetContext.Describe(instance.ParsedArguments[0].Element, instance.PlayerContext.Output);
+                DescribedElementInstance element = instance.ParsedArguments[0].Element;
+
+                DescribedElementInstance actual = instance.PlayerContext.Get(element, -1);
+                if (actual == null)
+                    instance.PlayerContext.WriteLine("You can't get the " + element.ElementDefintion.CreateDescription(1));
+                else
+                {
+                    actual.Location = DescribedElementInstance.ElementLocations.Middle;
+
+                    instance.EnvironmnetContext.Put(actual);
+                    instance.PlayerContext.WriteLine("You drop " + actual.ElementDefintion.CreateDescription(actual.Quanity) + " into on the ground");
+                }
             }
         }
     }
@@ -142,7 +174,18 @@ namespace ParserTest.Parser.Actions
 
         public override void Act(VerbInstance instance)
         {
-            base.Act(instance);
+            if (instance.ParsedArguments.Count == 0)
+                instance.PlayerContext.WriteLine("Where do you want to go?");
+            else
+            {
+                VerbInstance.ParsedArgument arg = instance.ParsedArguments[0];
+                if (arg.Argument.MajorType == ParsedElement.MajorTypes.Exit)
+                    GoDirection(instance, arg.Location);
+                else if (arg.Argument.MajorType == ParsedElement.MajorTypes.AnyItem)
+                    instance.PlayerContext.WriteLine("You stand near " + arg.Element.ElementDefintion.CreateDescription(arg.Element.Quanity));
+                else
+                    instance.PlayerContext.WriteLine("You can't go to " + arg.Argument.Word);
+            }
         }
 
         protected void GoDirection(VerbInstance instance, DescribedElementInstance.ElementLocations direction)
@@ -166,7 +209,10 @@ namespace ParserTest.Parser.Actions
 
         public override void Act(VerbInstance instance)
         {
-            base.Act(instance);
+            DescribedElementInstance.ElementLocations location = DescribedElementInstance.ElementLocations.Middle;
+
+            if (TextUtils.Language.IsLocation(instance.Word, ref location))
+                GoDirection(instance,location);
         }
     }
 }
