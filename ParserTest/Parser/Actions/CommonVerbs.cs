@@ -79,8 +79,14 @@ namespace ParserTest.Parser.Actions
 
                 DescribedElementInstance element = instance.ParsedArguments[0].Element;
 
-                if (element.)
-                instance.EnvironmnetContext.Describe(, instance.PlayerContext.Output);
+                DescribedElementInstance actual = instance.EnvironmnetContext.Get(element, -1);
+                if (actual == null)
+                    instance.PlayerContext.WriteLine("You can't get the " + element.ElementDefintion.CreateDescription(1));
+                else
+                { 
+                    instance.PlayerContext.OwnedElements.Add(actual);
+                    instance.PlayerContext.WriteLine("You put " + actual.ElementDefintion.CreateDescription(actual.Quanity) + " in your pack");
+                }
             }
         }
     }
