@@ -164,14 +164,14 @@ namespace ParserTest.Parser
                     return true;
                 }
 
-                if (word == element.ElementDefintion.ElementType)
+                if (element.WordDescribesMe(word))
                     found.Add(element);
             }
 
             return found.Count > 0;
         }
 
-        private static DescribedElementInstance FindBestItem(List<string> adjetives, List<DescribedElementInstance> list)
+        private static DescribedElementInstance FindBestItem(string word, List<string> adjetives, List<DescribedElementInstance> list)
         {
             if (list.Count == 0)
                 return null;
@@ -206,7 +206,7 @@ namespace ParserTest.Parser
             if (!FindPossibleItems(word, environment.Elements, ref possibles) && !FindPossibleItems(word, viewer.OwnedElements, ref possibles))
                 return false;
 
-            item = FindBestItem(adjetives, possibles);
+            item = FindBestItem(word, adjetives, possibles);
             return true;
         }
 
@@ -215,7 +215,7 @@ namespace ParserTest.Parser
            if (!FindPossibleItems(word, list, ref possibles))
                 return false;
 
-            item = FindBestItem(adjetives, possibles);
+           item = FindBestItem(word, adjetives, possibles);
             return true;
         }
 

@@ -23,5 +23,7 @@ namespace ParserTest.Language
 
         bool IsLocation(string word, ref DescribedElementInstance.ElementLocations location);
         bool IsFiller(string word);
+
+        bool IsPluralOfNoun(string word, string noun);
     }
 }

@@ -161,6 +161,13 @@ namespace ParserTest.Language
             output.OutputIOLine(lineBuilder.ToString());
         }
 
+        public bool IsPluralOfNoun(string word, string noun)
+        {
+            char c = word[word.Length - 1];
+            string sub = word.Substring(0, word.Length - 1);
+            return word.Length > 1 &&  c == 's' &&  sub == noun;
+        }
+
         public bool IsFiller(string word)
         {
             return Fillers.Contains(word);

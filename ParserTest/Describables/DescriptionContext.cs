@@ -50,6 +50,17 @@ namespace ParserTest.Describables
             ElementDefintion = o.ElementDefintion;
         }
 
+        public bool WordDescribesMe(string word)
+        {
+            if (word == ElementDefintion.ElementType)
+                return true;
+
+            if (Quanity == 1)
+                return false;
+
+            return TextUtils.Language.IsPluralOfNoun(word, ElementDefintion.ElementType);
+
+        }
         public void Put(DescribedElementInstance item)
         {
             item.Parrent = this;
