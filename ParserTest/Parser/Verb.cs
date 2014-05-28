@@ -8,7 +8,6 @@ using ParserTest.Viewer;
 
 namespace ParserTest.Parser
 {
-
     public class VerbInstance
     {
         public Verb Action = null;
@@ -16,7 +15,16 @@ namespace ParserTest.Parser
         public string Word = string.Empty;
 
         public List<ParsedElement> RawArguments = new List<ParsedElement>();
-        public List<ParsedElement> ParsedElements = new List<ParsedElement>();
+        
+        public class ParsedArgument
+        {
+            public ParsedElement Argument = null;
+            public DescribedElementInstance Element = null;
+            public DescribedElementInstance.ElementLocations Location = DescribedElementInstance.ElementLocations.Middle;
+        }
+
+        public List<ParsedArgument> ParsedArguments = new List<ParsedArgument>();
+
         public DescriptionContext EnvironmnetContext = null;
         public ViewerContext PlayerContext = null;
 

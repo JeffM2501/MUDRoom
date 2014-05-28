@@ -7,6 +7,8 @@ using ParserTest.IO;
 using ParserTest.Describables;
 using ParserTest.Viewer;
 
+using ParserTest.Language;
+
 namespace ParserTest.Parser
 {
     public class VerbElement : ParsedElement
@@ -26,7 +28,6 @@ namespace ParserTest.Parser
         public static IOutputInterface Output;
 
         public static List<Verb> Verbs = new List<Verb>();
-        public static List<string> Fillers = new List<string>();
 
         public static List<ParsedElement> Parse(string line, DescriptionContext environmentContext, ViewerContext playerContext)
         {
@@ -49,7 +50,7 @@ namespace ParserTest.Parser
                 }
                 else
                 {
-                    if (Fillers.Contains(lowerElement))
+                    if (TextUtils.Language.IsFiller(lowerElement))
                         element.MajorType = ParsedElement.MajorTypes.Filler;
                     else
                         element.MajorType = ParsedElement.MajorTypes.Unknown;
@@ -75,6 +76,10 @@ namespace ParserTest.Parser
                     verb.Instance.RawArguments = ReadToNextVerb(rawElements, ref i);
 
                     // lets see what this verb wants
+
+                    int argIndex = 0;
+                    foreach (ParsedElement.MajorTypes argType in verb.Instance.Action.Arguments)
+                        verb.Instance.ParsedArguments.Add(ReadToNextArgument(argType, verb.Instance.RawArguments, ref argIndex, environmentContext, playerContext));
 
                     // add the top verb to the tree
                     ElementTree.Add(verb);
@@ -140,6 +145,143 @@ namespace ParserTest.Parser
             }
 
             return things;
+        }
+
+        private static bool FindPossibleItems(string word, List<DescribedElementInstance> list, ref List<DescribedElementInstance> found)
+        {
+            foreach(DescribedElementInstance element in list)
+            {
+                if (word == element.ElementDefintion.Name) // name match
+                {
+                    found.Clear();
+                    found.Add(element);
+                    return true;
+                }
+
+                if (word == element.ElementDefintion.ElementType)
+                    found.Add(element);
+            }
+
+            return found.Count > 0;
+        }
+
+        private static DescribedElementInstance FindBestItem(List<string> adjetives, List<DescribedElementInstance> list)
+        {
+            if (list.Count == 0)
+                return null;
+
+            if (list.Count == 1)
+                return list[0];
+
+            int adjetiveCount = -1;
+            DescribedElementInstance bestMatch = null;
+
+            foreach (DescribedElementInstance i in list)
+            {
+                int count = 0;
+                foreach(string a in adjetives)
+                {
+                    if (i.ElementDefintion.AdjetiveDescribesThis(a))
+                        count++;
+                }
+
+                if (count > adjetiveCount)
+                {
+                    bestMatch = i;
+                    adjetiveCount = count;
+                }
+            }
+
+            return bestMatch;
+        }
+
+        private static bool IsItem(string word, List<string> adjetives, DescriptionContext environment, ViewerContext viewer, ref DescribedElementInstance item)
+        {
+            List<DescribedElementInstance> possibles = new List<DescribedElementInstance>();
+
+            if (!FindPossibleItems(word, environment.Elements, ref possibles) && !FindPossibleItems(word, viewer.OwnedElements, ref possibles))
+                return false;
+
+            item = FindBestItem(adjetives, possibles);
+            return true;
+        }
+
+        private static bool IsItemInList(string word, List<string> adjetives, List<DescribedElementInstance> list, ref DescribedElementInstance item)
+        {
+            List<DescribedElementInstance> possibles = new List<DescribedElementInstance>();
+
+            if (!FindPossibleItems(word, list, ref possibles))
+                return false;
+
+            item = FindBestItem(adjetives, possibles);
+            return true;
+        }
+
+        private static VerbInstance.ParsedArgument ReadToNextArgument(ParsedElement.MajorTypes argType, List<ParsedElement> arguments, ref int index, DescriptionContext environment, ViewerContext viewer)
+        {
+            bool done = false;
+
+            List<string> adjetives = new List<string>();
+
+            VerbInstance.ParsedArgument argument = new VerbInstance.ParsedArgument();
+
+            while (!done)
+            {
+                if (index >= arguments.Count)
+                    done = true;
+                else
+                {
+                    argument.Argument = arguments[index];
+
+                    string lowerWord = argument.Argument.Word.ToLower();
+                    if (argument.Argument.MajorType != ParsedElement.MajorTypes.Filler)
+                    {
+
+                        bool isLoc = ParserTest.Language.TextUtils.Language.IsLocation(lowerWord, ref argument.Location);
+
+                        if (isLoc)  // locations are nouns
+                            argument.Argument.MajorType = ParsedElement.MajorTypes.Exit;
+
+                        switch(argType)
+                        {
+                            case ParsedElement.MajorTypes.Noun:
+                                if (isLoc || IsItem(lowerWord, adjetives, environment, viewer, ref argument.Element))  // locations or items are nouns
+                                    return argument;
+                                break;
+
+                            case ParsedElement.MajorTypes.AnyItem:
+                                if (IsItem(lowerWord, adjetives, environment, viewer, ref argument.Element))
+                                    return argument;
+                                break;
+
+                            case ParsedElement.MajorTypes.EnvironmentItem:
+                                if (IsItemInList(lowerWord, adjetives, environment.Elements, ref argument.Element))
+                                    return argument;
+                                break;
+
+                            case ParsedElement.MajorTypes.PersonalItem:
+                                if (IsItemInList(lowerWord, adjetives, viewer.OwnedElements, ref argument.Element))
+                                    return argument;
+                                break;
+
+                            case ParsedElement.MajorTypes.Exit:
+                                if (isLoc)  // locations are exists
+                                    return argument;
+                                break;
+
+                            case ParsedElement.MajorTypes.Unknown:
+                                return argument; // they want anything
+                        }
+
+                        // we didn't find what we wanted, so save this as an adjective
+                        adjetives.Add(argument.Argument.Word); 
+                    }
+                }
+
+                index++;
+            }
+
+            return null;
         }
     }
 }

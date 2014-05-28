@@ -20,5 +20,8 @@ namespace ParserTest.Language
 
         string GetLocationDescription(DescribedElementInstance.ElementLocations location);
         void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output);
+
+        bool IsLocation(string word, ref DescribedElementInstance.ElementLocations location);
+        bool IsFiller(string word);
     }
 }

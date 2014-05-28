@@ -20,6 +20,24 @@ namespace ParserTest.Language
 
             AddSayings(TextUtils.SayingConstants.Up, new string[] { "Above", "Overhead" });
             AddSayings(TextUtils.SayingConstants.Down, new string[] { "Below", "Underfoot", "On ground" });
+
+            Fillers.Add("a");
+            Fillers.Add("the");
+            Fillers.Add("an");
+            Fillers.Add("teh");
+            Fillers.Add("that");
+        }
+
+        public static string SingularToBe = "is";
+        public static string PluralToBe = "are";
+
+        public static string Containing = "containing;";
+
+        public List<string> Fillers = new List<string>();
+
+        public string QuantyToBe(int quanity)
+        {
+            return quanity > 1 ? PluralToBe : SingularToBe;
         }
 
         public string GetLanguageID()
@@ -117,12 +135,82 @@ namespace ParserTest.Language
 
             return string.Empty;
         }
-
+        
         public void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output)
         {
+            bool hasKids = followOpenChildren && element.DescribeChildren && element.Children.Count != 0;
+
             StringBuilder lineBuilder = new StringBuilder();
 
             lineBuilder.Append(GetLocationDescription(element.Location));
+
+            lineBuilder.Append(" ");
+            lineBuilder.Append(QuantyToBe(element.Quanity));
+
+            lineBuilder.Append(" ");
+            lineBuilder.Append(element.ElementDefintion.CreateDescription(element.Quanity));
+
+            if (hasKids)
+            {
+                lineBuilder.AppendLine(" "); lineBuilder.Append(Containing);
+
+                foreach (DescribedElementInstance child in element.Children)
+                    lineBuilder.AppendLine(element.ElementDefintion.CreateDescription(element.Quanity));
+            }
+
+            output.OutputIOLine(lineBuilder.ToString());
+        }
+
+        public bool IsFiller(string word)
+        {
+            return Fillers.Contains(word);
+        }
+
+        public bool IsLocation (string word, ref DescribedElementInstance.ElementLocations location)
+        {
+            if (word == "north" || word == "n")
+            {
+                location = DescribedElementInstance.ElementLocations.North;
+                return true;
+            }
+
+            if (word == "south" || word == "s")
+            {
+                location = DescribedElementInstance.ElementLocations.South;
+                return true;
+            }
+
+            if (word == "east" || word == "ae")
+            {
+                location = DescribedElementInstance.ElementLocations.East;
+                return true;
+            }
+
+            if (word == "west" || word == "w")
+            {
+                location = DescribedElementInstance.ElementLocations.West;
+                return true;
+            }
+
+            if (word == "up" || word == "u")
+            {
+                location = DescribedElementInstance.ElementLocations.Up;
+                return true;
+            }
+
+            if (word == "down" || word == "d")
+            {
+                location = DescribedElementInstance.ElementLocations.Down;
+                return true;
+            }
+
+            if (word == "middle" || word == "center")
+            {
+                location = DescribedElementInstance.ElementLocations.Middle;
+                return true;
+            }
+
+            return false;
         }
     }
 }

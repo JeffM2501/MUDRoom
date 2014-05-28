@@ -15,6 +15,8 @@ namespace ParserTest.Describables
         public string ElementType = string.Empty;
         public List<string> Adjetives = new List<string>();
 
+        private List<string> AdjetiveCache = new List<string>();
+
         public enum ElementTypes
         {
             Item,
@@ -26,6 +28,21 @@ namespace ParserTest.Describables
         public bool Container = false;
 
         public bool SingleIsPair = false; // PANTS!
+
+        public bool AdjetiveDescribesThis(string adj)
+        {
+            if (Adjetives.Count == 0)
+                return false;
+
+            if (Adjetives.Count != AdjetiveCache.Count)
+            {
+                AdjetiveCache.Clear();
+                foreach (string a in Adjetives)
+                    AdjetiveCache.Add(a.ToLower());
+            }
+
+            return AdjetiveCache.Contains(adj);
+        }
 
         public string CreateDescription(int quanity)
         {
@@ -52,6 +69,7 @@ namespace ParserTest.Describables
                     builder.Append(adjetives);
                 }
                 builder.Append(" ");
+                builder.Append(ElementType);
                 if (quanity > 1 || SingleIsPair)
                     builder.Append("s");
             }
@@ -62,7 +80,7 @@ namespace ParserTest.Describables
         public DescribedElementDefintion() { }
         public DescribedElementDefintion(string name)
         {
-            Name = name;
+            Name = name.ToLowerInvariant();
         }
 
         public static DescribedElementDefintion Empty = new DescribedElementDefintion();
