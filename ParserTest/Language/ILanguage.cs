@@ -25,5 +25,7 @@ namespace ParserTest.Language
         bool IsFiller(string word);
 
         bool IsPluralOfNoun(string word, string noun);
+
+        bool IsConnector(string word);
     }
 }

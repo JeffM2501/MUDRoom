@@ -18,6 +18,10 @@ namespace ParserTest.Viewer
 
         public DescribedElementInstance InspectedElement = null;
 
+        public VerbInstance LastVerb = null;
+
+        public ILanguage Language = TextUtils.Language;
+
         public void Describe(DescribedElementInstance start)
         {
             if (start == null)

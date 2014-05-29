@@ -26,6 +26,9 @@ namespace ParserTest.Language
             Fillers.Add("an");
             Fillers.Add("teh");
             Fillers.Add("that");
+            Fillers.Add("in");
+            Fillers.Add("with");
+            Fillers.Add("on");
         }
 
         public static string SingularToBe = "is";
@@ -171,6 +174,11 @@ namespace ParserTest.Language
         public bool IsFiller(string word)
         {
             return Fillers.Contains(word);
+        }
+
+        public bool IsConnector(string word)
+        {
+            return word == "and" || word == "or" || word == ",";
         }
 
         public bool IsLocation (string word, ref DescribedElementInstance.ElementLocations location)

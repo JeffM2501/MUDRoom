@@ -56,7 +56,6 @@
     <Compile Include="Describables\DescriptionContext.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Describables\IDescribeable.cs" />
-    <Compile Include="Parser\ParsedElement.cs" />
     <Compile Include="Parser\Verb.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

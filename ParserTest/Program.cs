@@ -54,9 +54,10 @@ namespace ParserTest
                 Words.Add("exit");
             }
 
-            public override void Act(VerbInstance instance)
+            public override bool Act(VerbInstance instance)
             {
                 Program.Quit = true;
+                return true;
             }
         }
     }
