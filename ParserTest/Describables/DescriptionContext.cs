@@ -6,6 +6,7 @@ using System.Text;
 using ParserTest.Parser;
 using ParserTest.IO;
 using ParserTest.Language;
+using ParserTest.Viewer;
 
 namespace ParserTest.Describables
 {
@@ -50,17 +51,7 @@ namespace ParserTest.Describables
             ElementDefintion = o.ElementDefintion;
         }
 
-        public bool WordDescribesMe(string word)
-        {
-            if (word == ElementDefintion.ElementType)
-                return true;
-
-            if (Quanity == 1)
-                return false;
-
-            return TextUtils.Language.IsPluralOfNoun(word, ElementDefintion.ElementType);
-
-        }
+    
         public void Put(DescribedElementInstance item)
         {
             item.Parrent = this;
@@ -94,22 +85,17 @@ namespace ParserTest.Describables
         public List<DescribedElementInstance> Elements = new List<DescribedElementInstance>();
 		public string ContextDescriptor = string.Empty;
 
-		public void Describe(DescribedElementInstance start, IOutputInterface output)
-		{
-			if(start == null)
-			{
-				Write(ContextDescriptor, output);
+        public void Describe(DescribedElementInstance start, ViewerContext player)
+        {
+            if (start == null)
+            {
+                Write(ContextDescriptor, player.Output);
                 foreach (DescribedElementInstance element in Elements)
-                    TextUtils.Language.WriteElement(element, true, output);
-			}
-			else
-                TextUtils.Language.WriteElement(start, true, output);
-		}
-
-		public void Describe(DescribedElementInstance start)
-		{
-			Describe(start,CommandParser.Output);
-		}
+                    player.Language.WriteElement(element, true, player.Output, true);
+            }
+            else
+                player.Language.WriteElement(start, true, player.Output, true);
+        }
 
 		private void Write (string line, IOutputInterface output)
 		{

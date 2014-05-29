@@ -77,7 +77,10 @@ namespace ParserTest.Parser
                             verb.Text = lastVerb.Text;
                         }
                         else
+                        { 
+                            count += 1;
                             continue;
+                        }  
                     }
                     else
                         lastVerb = verb;    // so that connectors
@@ -96,12 +99,18 @@ namespace ParserTest.Parser
                     while (!done && verb.Action.Arguments.Count > 0)
                     {
                         List<string> adjetives = new List<string>();
+                        if (count >= line.Length)
+                        {
+                            done = true;
+                            break;
+                        }
 
                         for (int a = 0; a < verb.Action.Arguments.Count; a++)
                         {
                             if (verb.Action.Arguments[a] == VerbArgumentTypes.Sentance) // easy out if they want the entire line
                             {
                                 VerbArgument arg = new VerbArgument(VerbArgumentTypes.Sentance,line.Substring(count));
+                                verb.Arguments.Add(arg);
                                 results.Comands.Add(verb);
                                 return results;
                             }
@@ -202,7 +211,7 @@ namespace ParserTest.Parser
             return Verbs.Find(delegate(Verb v) { return v.HasString(word); });
         }
 
-        public static bool FindPossibleItems(string word, List<DescribedElementInstance> list, ref List<DescribedElementInstance> found)
+        public static bool FindPossibleItems(string word, List<DescribedElementInstance> list, ref List<DescribedElementInstance> found, ViewerContext player)
         {
             foreach(DescribedElementInstance element in list)
             {
@@ -213,7 +222,7 @@ namespace ParserTest.Parser
                     return true;
                 }
 
-                if (element.WordDescribesMe(word))
+                if (player.Language.WordDescribesElement(word, element))
                     found.Add(element);
             }
 
@@ -252,16 +261,16 @@ namespace ParserTest.Parser
 
         public static bool IsItem(string word, List<string> adjetives, DescriptionContext environment, ViewerContext viewer, ref DescribedElementInstance item, List<DescribedElementInstance> possibles)
         {
-            if (!FindPossibleItems(word, environment.Elements, ref possibles) && !FindPossibleItems(word, viewer.OwnedElements, ref possibles))
+            if (!FindPossibleItems(word, environment.Elements, ref possibles, viewer) && !FindPossibleItems(word, viewer.OwnedElements, ref possibles, viewer))
                 return false;
 
             item = FindBestItem(word, adjetives, possibles);
             return true;
         }
 
-        public static bool IsItemInList(string word, List<string> adjetives, List<DescribedElementInstance> list, ref DescribedElementInstance item, List<DescribedElementInstance> possibles)
+        public static bool IsItemInList(string word, List<string> adjetives, List<DescribedElementInstance> list, ref DescribedElementInstance item, List<DescribedElementInstance> possibles, ViewerContext viewer)
         {
-           if (!FindPossibleItems(word, list, ref possibles))
+            if (!FindPossibleItems(word, list, ref possibles, viewer))
                 return false;
 
            item = FindBestItem(word, adjetives, possibles);
@@ -275,7 +284,7 @@ namespace ParserTest.Parser
                 case VerbArgumentTypes.Noun:
                     {
                         DescribedElementInstance.ElementLocations loc = DescribedElementInstance.ElementLocations.Middle;
-                        if (ParserTest.Language.TextUtils.Language.IsLocation(word, ref loc))
+                        if (viewer.Language.IsLocation(word, ref loc))
                             return new VerbLocationArgument(word, loc);
 
                         VerbElementArgument e = new VerbElementArgument(word);
@@ -295,7 +304,7 @@ namespace ParserTest.Parser
                 case VerbArgumentTypes.EnvironmentItem:
                     {
                         VerbElementArgument e = new VerbElementArgument(word);
-                        if (IsItemInList(word, adjetives, environment.Elements, ref e.Element, e.PossibleElements))  // locations or items are nouns
+                        if (IsItemInList(word, adjetives, environment.Elements, ref e.Element, e.PossibleElements, viewer))  // locations or items are nouns
                             return e;
                     }
                     break;
@@ -303,7 +312,7 @@ namespace ParserTest.Parser
                 case VerbArgumentTypes.PersonalItem:
                     {
                         VerbElementArgument e = new VerbElementArgument(word);
-                        if (IsItemInList(word, adjetives, viewer.OwnedElements, ref e.Element, e.PossibleElements))  // locations or items are nouns
+                        if (IsItemInList(word, adjetives, viewer.OwnedElements, ref e.Element, e.PossibleElements, viewer))  // locations or items are nouns
                             return e;
                     }
                     break;
@@ -311,7 +320,7 @@ namespace ParserTest.Parser
                 case VerbArgumentTypes.Adjetive:
                     {
                         DescribedElementInstance.ElementLocations loc = DescribedElementInstance.ElementLocations.Middle;
-                        if (TextUtils.Language.IsFiller(word) || ParserTest.Language.TextUtils.Language.IsLocation(word, ref loc))
+                        if (viewer.Language.IsFiller(word) || viewer.Language.IsLocation(word, ref loc))
                             return null;
 
                         VerbElementArgument e = new VerbElementArgument(word);
@@ -322,14 +331,14 @@ namespace ParserTest.Parser
                     }
 
                 case VerbArgumentTypes.Filler:
-                     if (TextUtils.Language.IsFiller(word))
+                    if (viewer.Language.IsFiller(word))
                          new VerbArgument(VerbArgumentTypes.Filler, word);
                     break;
 
                 case VerbArgumentTypes.Exit:
                     {
                         DescribedElementInstance.ElementLocations loc = DescribedElementInstance.ElementLocations.Middle;
-                        if (ParserTest.Language.TextUtils.Language.IsLocation(word, ref loc))
+                        if (viewer.Language.IsLocation(word, ref loc))
                             return new VerbLocationArgument(word, loc);
                     }
                     break;

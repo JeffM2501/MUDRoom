@@ -29,6 +29,7 @@ namespace ParserTest.Language
             Fillers.Add("in");
             Fillers.Add("with");
             Fillers.Add("on");
+            Fillers.Add("from");
         }
 
         public static string SingularToBe = "is";
@@ -51,6 +52,11 @@ namespace ParserTest.Language
         public bool IsVowel(char c)
         {
             return c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u';
+        }
+
+        public bool IsActionFillter(string word)
+        {
+            return word == "to";
         }
 
         public string GetQuantityDescritpion(int quanity, string firstWord, bool singleIsPair)
@@ -138,30 +144,78 @@ namespace ParserTest.Language
 
             return string.Empty;
         }
+
+        public string MakeSentanceStart(string word)
+        {
+            if (word == string.Empty)
+                return string.Empty;
+
+            if (!Char.IsUpper(word[0]))
+                return word.Substring(0, 1).ToUpper() + word.Substring(1, word.Length - 1);
+            return word;
+        }
         
-        public void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output)
+        public void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output, bool useLocation)
         {
             bool hasKids = followOpenChildren && element.DescribeChildren && element.Children.Count != 0;
 
             StringBuilder lineBuilder = new StringBuilder();
 
-            lineBuilder.Append(GetLocationDescription(element.Location));
+            if (useLocation)
+            {
+                lineBuilder.Append(GetLocationDescription(element.Location));
 
-            lineBuilder.Append(" ");
-            lineBuilder.Append(QuantyToBe(element.Quanity));
+                lineBuilder.Append(" ");
+                lineBuilder.Append(QuantyToBe(element.Quanity));
+                lineBuilder.Append(" ");
+            }
 
-            lineBuilder.Append(" ");
-            lineBuilder.Append(element.ElementDefintion.CreateDescription(element.Quanity));
+            string desc = CreateDescription(element.Quanity, element.ElementDefintion);
+
+            lineBuilder.Append(!useLocation ? MakeSentanceStart(desc) : desc);
 
             if (hasKids)
             {
                 lineBuilder.AppendLine(" "); lineBuilder.Append(Containing);
 
                 foreach (DescribedElementInstance child in element.Children)
-                    lineBuilder.AppendLine(element.ElementDefintion.CreateDescription(element.Quanity));
+                    lineBuilder.AppendLine(CreateDescription(element.Quanity,element.ElementDefintion));
             }
 
             output.OutputIOLine(lineBuilder.ToString());
+        }
+
+        public string CreateDescription(int quanity, DescribedElementDefintion element)
+        {
+            if (element.Description != string.Empty)
+                return element.Description;
+
+            StringBuilder builder = new StringBuilder();
+
+            if (element.Adjetives.Count == 0)
+            {
+                builder.Append(GetQuantityDescritpion(quanity, element.ElementType, element.SingleIsPair));
+                builder.Append(" ");
+                builder.Append(element.ElementType);
+                if (quanity > 1 || element.SingleIsPair)
+                    builder.Append("s");
+            }
+            else
+            {
+                builder.Append(GetQuantityDescritpion(quanity, element.Adjetives[0], element.SingleIsPair));
+
+                foreach (string adjetives in element.Adjetives)
+                {
+                    builder.Append(" ");
+                    builder.Append(adjetives);
+                }
+                builder.Append(" ");
+                builder.Append(element.ElementType);
+                if (quanity > 1 || element.SingleIsPair)
+                    builder.Append("s");
+            }
+
+            return builder.ToString();
         }
 
         public bool IsPluralOfNoun(string word, string noun)
@@ -178,7 +232,7 @@ namespace ParserTest.Language
 
         public bool IsConnector(string word)
         {
-            return word == "and" || word == "or" || word == ",";
+            return word == "and" || word == "or" || word == "then" || word == "also";
         }
 
         public bool IsLocation (string word, ref DescribedElementInstance.ElementLocations location)
@@ -195,7 +249,7 @@ namespace ParserTest.Language
                 return true;
             }
 
-            if (word == "east" || word == "ae")
+            if (word == "east" || word == "e")
             {
                 location = DescribedElementInstance.ElementLocations.East;
                 return true;
@@ -226,6 +280,17 @@ namespace ParserTest.Language
             }
 
             return false;
+        }
+
+        public bool WordDescribesElement(string word, DescribedElementInstance insance)
+        {
+            if (word == insance.ElementDefintion.ElementType)
+                return true;
+
+            if (insance.Quanity == 1)
+                return false;
+
+            return IsPluralOfNoun(word, insance.ElementDefintion.ElementType);
         }
     }
 }

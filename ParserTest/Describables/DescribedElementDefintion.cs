@@ -44,39 +44,6 @@ namespace ParserTest.Describables
             return AdjetiveCache.Contains(adj);
         }
 
-        public string CreateDescription(int quanity)
-        {
-            if (Description != string.Empty)
-                return Description;
-
-            StringBuilder builder = new StringBuilder();
-
-            if (Adjetives.Count == 0)
-            {
-                builder.Append(TextUtils.Language.GetQuantityDescritpion(quanity, ElementType, SingleIsPair));
-                builder.Append(" ");
-                builder.Append(ElementType);
-                if (quanity > 1 || SingleIsPair)
-                    builder.Append("s");
-            }
-            else
-            {
-                builder.Append(TextUtils.Language.GetQuantityDescritpion(quanity, Adjetives[0], SingleIsPair));
-
-                foreach (string adjetives in Adjetives)
-                {
-                    builder.Append(" ");
-                    builder.Append(adjetives);
-                }
-                builder.Append(" ");
-                builder.Append(ElementType);
-                if (quanity > 1 || SingleIsPair)
-                    builder.Append("s");
-            }
-
-            return builder.ToString();
-        }
-
         public DescribedElementDefintion() { }
         public DescribedElementDefintion(string name)
         {

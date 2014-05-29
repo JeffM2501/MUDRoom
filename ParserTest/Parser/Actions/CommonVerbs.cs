@@ -23,6 +23,8 @@ namespace ParserTest.Parser.Actions
 
             CommandParser.Verbs.Add(new InventoryVerb());
             CommandParser.Verbs.Add(new HelpVerb());
+
+            CommandParser.Verbs.Add(new TellVerb());
         }
     }
 
@@ -47,7 +49,7 @@ namespace ParserTest.Parser.Actions
                     instance.PlayerContext.WriteLine("You can't look at the " + instance.Arguments[0].Text);
                 else
                 {
-                    instance.EnvironmnetContext.Describe(elemnt.Element, instance.PlayerContext.Output);
+                    instance.EnvironmnetContext.Describe(elemnt.Element, instance.PlayerContext);
                     instance.PlayerContext.InspectedElement = elemnt.Element;
                 }
             }
@@ -67,7 +69,7 @@ namespace ParserTest.Parser.Actions
         public override bool Act(VerbInstance instance)
         {
             instance.PlayerContext.Output.OutputIOLine(string.Empty);
-            instance.EnvironmnetContext.Describe(null, instance.PlayerContext.Output);
+            instance.EnvironmnetContext.Describe(null, instance.PlayerContext);
             return true;
         }
     }
@@ -113,11 +115,11 @@ namespace ParserTest.Parser.Actions
 
                 DescribedElementInstance actual = instance.EnvironmnetContext.Get(elemnt.Element, -1);
                 if (actual == null)
-                    instance.PlayerContext.WriteLine("You can't get the " + elemnt.Element.ElementDefintion.CreateDescription(1));
+                    instance.PlayerContext.WriteLine("You can't get the " + instance.PlayerContext.Language.CreateDescription(1,elemnt.Element.ElementDefintion));
                 else
                 {
                     instance.PlayerContext.Put(actual);
-                    instance.PlayerContext.WriteLine("You put " + actual.ElementDefintion.CreateDescription(actual.Quanity) + " in your pack");
+                    instance.PlayerContext.WriteLine("You put " + instance.PlayerContext.Language.CreateDescription(actual.Quanity,actual.ElementDefintion) + " in your pack");
                 }
             }
 
@@ -145,20 +147,19 @@ namespace ParserTest.Parser.Actions
             }
             else
             {
-
                 VerbElementArgument elemnt = instance.Arguments[0] as VerbElementArgument;
                 if (elemnt == null)
                      instance.PlayerContext.WriteLine("You don't seem to have " + instance.Arguments[0].Text+ " on your person");
 
                 DescribedElementInstance actual = instance.PlayerContext.Get(elemnt.Element, -1);
                 if (actual == null)
-                    instance.PlayerContext.WriteLine("You can't get the " + elemnt.Element.ElementDefintion.CreateDescription(1));
+                    instance.PlayerContext.WriteLine("You can't get the " + instance.PlayerContext.Language.CreateDescription(1,elemnt.Element.ElementDefintion));
                 else
                 {
                     actual.Location = DescribedElementInstance.ElementLocations.Middle;
 
                     instance.EnvironmnetContext.Put(actual);
-                    instance.PlayerContext.WriteLine("You drop " + actual.ElementDefintion.CreateDescription(actual.Quanity) + " into on the ground");
+                    instance.PlayerContext.WriteLine("You drop " + instance.PlayerContext.Language.CreateDescription(actual.Quanity, actual.ElementDefintion) + " into on the ground");
                 }
             }
 
@@ -207,7 +208,7 @@ namespace ParserTest.Parser.Actions
                 if (locArg != null)
                     GoDirection(instance, locArg.Location);
                 else if (elementArg != null)
-                    instance.PlayerContext.WriteLine("You stand near " + elementArg.Element.ElementDefintion.CreateDescription(elementArg.Element.Quanity));
+                    instance.PlayerContext.WriteLine("You stand near " + instance.PlayerContext.Language.CreateDescription(elementArg.Element.Quanity,elementArg.Element.ElementDefintion));
                 else
                     instance.PlayerContext.WriteLine("You can't go to " + instance.Arguments[0].Text);
             }
@@ -246,7 +247,7 @@ namespace ParserTest.Parser.Actions
 
             DescribedElementInstance.ElementLocations location = DescribedElementInstance.ElementLocations.Middle;
 
-            if (TextUtils.Language.IsLocation(instance.Text, ref location))
+            if (instance.PlayerContext.Language.IsLocation(instance.Text, ref location))
                 GoDirection(instance,location);
 
             return true;
@@ -268,6 +269,7 @@ namespace ParserTest.Parser.Actions
 
             if (instance.Arguments.Count == 0)
             {
+                instance.PlayerContext.WriteLine("Available Actions:");
                 foreach (Verb verb in CommandParser.Verbs)
                     instance.PlayerContext.WriteLine(verb.HelpText());
             }
@@ -275,13 +277,66 @@ namespace ParserTest.Parser.Actions
             {
                 Verb verb = CommandParser.FindVerb(instance.Arguments[0].Text);
                 if (verb == null)
-                    instance.PlayerContext.WriteLine("There is no command named " + instance.Arguments[0].Text);
+                    instance.PlayerContext.WriteLine(instance.Arguments[0].Text + " is not the name of an action");
                 else
                     instance.PlayerContext.WriteLine(verb.HelpText());
             }
 
             return true;
         }
-        
+    }
+
+    public class TellVerb : Verb
+    {
+        public TellVerb()
+        {
+            Words.Add("tell");
+
+            Arguments.Add(VerbArgumentTypes.EnvironmentItem);
+            Arguments.Add(VerbArgumentTypes.Sentance);
+        }
+
+        public override bool Act(VerbInstance instance)
+        {
+            instance.PlayerContext.WriteLine(string.Empty);
+
+            if (instance.Arguments.Count < 2)
+            {
+                if (instance.Arguments.Count == 0 || (instance.Arguments[0] as VerbElementArgument == null))
+                    instance.PlayerContext.WriteLine("Who do you want to say what to?");
+                else
+                {
+                    if (instance.PlayerContext.PendingArguments.Count == 1)
+                    {
+                        instance.Arguments.Insert(0, instance.PlayerContext.PendingArguments[0]);
+                        instance.PlayerContext.PendingArguments.Clear();
+                    }
+                    else
+                    {
+                        instance.PlayerContext.PendingArguments.Add(instance.Arguments[0]);
+                        instance.PlayerContext.WriteLine("What do you want to say to " + instance.PlayerContext.Language.CreateDescription(1,(instance.Arguments[0] as VerbElementArgument).Element.ElementDefintion) + "?");
+                    }
+                }
+            }
+
+            if (instance.Arguments.Count >= 2)
+            {
+                VerbElementArgument element = instance.Arguments[0] as VerbElementArgument;
+                if (element == null)
+                    instance.PlayerContext.WriteLine("You don't see " + instance.Arguments[0].Text + " anywhere");
+                else
+                {
+                    string text = instance.Arguments[1].Text;
+                    int i = 0;
+                    if (instance.PlayerContext.Language.IsActionFillter(CommandParser.ReadWord(instance.Arguments[1].Text, ref i).ToLowerInvariant()))
+                        text = text.Substring(i + 1);
+
+                    instance.PlayerContext.WriteLine("You tell " + instance.PlayerContext.Language.CreateDescription(1,element.Element.ElementDefintion) + ", \"" + instance.PlayerContext.Language.MakeSentanceStart(text) + "\"");
+                }
+            }
+
+            return true;
+        }
+
     }
 }

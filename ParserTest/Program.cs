@@ -33,7 +33,7 @@ namespace ParserTest
           
             console.OutputIOLine("Parser Startup");
 
-            world.Environment.Describe(null);
+            world.Environment.Describe(null,world.Player);
 
             while (!Quit)
             {

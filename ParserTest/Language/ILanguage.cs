@@ -19,7 +19,9 @@ namespace ParserTest.Language
         string GetRandomSaying(string key);
 
         string GetLocationDescription(DescribedElementInstance.ElementLocations location);
-        void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output);
+        void WriteElement(DescribedElementInstance element, bool followOpenChildren, IOutputInterface output, bool useLocation);
+        string CreateDescription(int quanity, DescribedElementDefintion element);
+        bool WordDescribesElement(string word, DescribedElementInstance insance);
 
         bool IsLocation(string word, ref DescribedElementInstance.ElementLocations location);
         bool IsFiller(string word);
@@ -27,5 +29,9 @@ namespace ParserTest.Language
         bool IsPluralOfNoun(string word, string noun);
 
         bool IsConnector(string word);
+
+        string MakeSentanceStart(string word);
+
+        bool IsActionFillter(string word);
     }
 }

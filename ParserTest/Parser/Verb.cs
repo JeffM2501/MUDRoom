@@ -139,7 +139,7 @@ namespace ParserTest.Parser
                     builder.Append(Words[0]);
                     if (Words.Count > 1)
                     {
-                        builder.Append("[");
+                        builder.Append(" [");
                         for(int i = 1; i < Words.Count; i++)
                         {
                             builder.Append(Words[i]);

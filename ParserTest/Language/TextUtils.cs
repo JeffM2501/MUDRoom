@@ -29,14 +29,13 @@ namespace ParserTest.Language
         }
 
         // global language, should actually save the language ID with viewer
-        public static ILanguage Language = null;
+   //     public static ILanguage Language = null;
 
         public static English EnglishLanguage = new English();
         // OTHER supported languages here
 
         static TextUtils()
         {
-            Language = EnglishLanguage;
         }
     }
 }

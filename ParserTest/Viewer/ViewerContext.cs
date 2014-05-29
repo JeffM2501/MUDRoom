@@ -20,17 +20,19 @@ namespace ParserTest.Viewer
 
         public VerbInstance LastVerb = null;
 
-        public ILanguage Language = TextUtils.Language;
+        public List<VerbArgument> PendingArguments = new List<VerbArgument>();
+
+        public ILanguage Language = TextUtils.EnglishLanguage;
 
         public void Describe(DescribedElementInstance start)
         {
             if (start == null)
             {
                 foreach (DescribedElementInstance element in OwnedElements)
-                    TextUtils.Language.WriteElement(element, true, Output);
+                    Language.WriteElement(element, true, Output, false);
             }
             else
-                TextUtils.Language.WriteElement(start, true, Output);
+                Language.WriteElement(start, true, Output, false);
         }
 
         public void WriteLine(string line)
@@ -54,7 +56,6 @@ namespace ParserTest.Viewer
             }
 
             return item.Pull(quantity);
-
         }
 
         public void Put(DescribedElementInstance item)
