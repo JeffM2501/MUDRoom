@@ -36,6 +36,11 @@ namespace ParserTest.Parser
             ArgumentType = argType;
             Text = text;
         }
+
+		public virtual VerbArgument Clone()
+		{
+			return new VerbArgument(ArgumentType, Text);
+		}
     }
 
     public class VerbElementArgument : VerbArgument
@@ -53,6 +58,14 @@ namespace ParserTest.Parser
             ArgumentType = VerbArgumentTypes.AnyItem;
             Text = text;
         }
+
+		public override VerbArgument Clone()
+		{
+			VerbElementArgument a = new VerbElementArgument(Text);
+			a.Element = Element;
+			a.PossibleElements = PossibleElements;
+			return a;
+		}
     }
 
     public class VerbLocationArgument : VerbArgument
@@ -71,6 +84,11 @@ namespace ParserTest.Parser
             Location = loc;
             Text = text;
         }
+
+		public override VerbArgument Clone()
+		{
+			return new VerbLocationArgument(Text, Location);
+		}
     }
 
     public class VerbValueArgument : VerbArgument
@@ -88,6 +106,10 @@ namespace ParserTest.Parser
             Value = val;
             Text = text;
         }
+		public override VerbArgument Clone()
+		{
+			return new VerbValueArgument(Text, Value);
+		}
     }
 
     public class VerbInstance

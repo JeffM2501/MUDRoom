@@ -19,6 +19,7 @@ namespace ParserTest.Viewer
         public DescribedElementInstance InspectedElement = null;
 
         public VerbInstance LastVerb = null;
+		public VerbElementArgument It = null;
 
         public List<VerbArgument> PendingArguments = new List<VerbArgument>();
 
@@ -51,7 +52,6 @@ namespace ParserTest.Viewer
                 DescribedElementInstance i = item.Pull(quantity);
                 if (i == item)
                     OwnedElements.Remove(i);
-
                 return i;
             }
 
@@ -61,6 +61,7 @@ namespace ParserTest.Viewer
         public void Put(DescribedElementInstance item)
         {
             item.Parrent = null;
+			item.Owned = true;
             OwnedElements.Add(item);
         }
 	}

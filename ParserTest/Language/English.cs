@@ -235,6 +235,11 @@ namespace ParserTest.Language
             return word == "and" || word == "or" || word == "then" || word == "also";
         }
 
+		public bool IsIt(string word)
+		{
+			return word == "it" || word == "them";
+		}
+
         public bool IsLocation (string word, ref DescribedElementInstance.ElementLocations location)
         {
             if (word == "north" || word == "n")
