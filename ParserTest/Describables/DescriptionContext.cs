@@ -37,6 +37,8 @@ namespace ParserTest.Describables
 
         public bool Perminant = false;
 
+		public bool Owned = false;
+
         public DescribedElementInstance()
         { 
         }
@@ -51,6 +53,12 @@ namespace ParserTest.Describables
             ElementDefintion = o.ElementDefintion;
         }
 
+		public bool IsOwned()
+		{
+			if(Parrent != null)
+				return Parrent.IsOwned();
+			return Owned;
+		}
     
         public void Put(DescribedElementInstance item)
         {
@@ -124,6 +132,7 @@ namespace ParserTest.Describables
         public void Put(DescribedElementInstance item)
         {
             item.Parrent = null;
+			item.Owned = false;
             Elements.Add(item);
         }
     }

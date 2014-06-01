@@ -29,6 +29,7 @@ namespace ParserTest.Language
         bool IsPluralOfNoun(string word, string noun);
 
         bool IsConnector(string word);
+		bool IsIt(string word);
 
         string MakeSentanceStart(string word);
 

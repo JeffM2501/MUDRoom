@@ -56,120 +56,126 @@ namespace ParserTest.Parser
 
             int lastEnd = 0;
 
+
+
             while (count < line.Length)
             {
                 int saveCount = count;
                 string word = ReadWord(line, ref count).Trim().ToLowerInvariant();
 
-                if (word != string.Empty && !playerContext.Language.IsFiller(word) || !playerContext.Language.IsConnector(word))
-                {
-                    VerbInstance verb = new VerbInstance();
-                    verb.Action = FindVerb(word);
-                    verb.Text = word;
+				if(word != string.Empty && !playerContext.Language.IsFiller(word) && !playerContext.Language.IsConnector(word))
+				{
+					VerbInstance verb = new VerbInstance();
+					verb.Action = FindVerb(word);
+					verb.Text = word;
 
-                    if (verb.Action == null)
-                    {
-                        if (lastVerb != null)
-                        {
-                            if (!playerContext.Language.IsConnector(word))
-                                count = saveCount-1;  // use the last verb and parse this like arguments
-                            verb.Action = lastVerb.Action;
-                            verb.Text = lastVerb.Text;
-                        }
-                        else
-                        { 
-                            count += 1;
-                            continue;
-                        }  
-                    }
-                    else
-                        lastVerb = verb;    // so that connectors
-        
-  
-                    verb.PlayerContext = playerContext;
-                    verb.EnvironmnetContext = environmentContext;
+					if(verb.Action == null)
+					{
+						if(lastVerb != null)
+						{
+							count = saveCount - 1;  // use the last verb and parse this like arguments
+							verb.Action = lastVerb.Action;
+							verb.Text = lastVerb.Text;
+						}
+						else
+						{
+							count += 1;
+							continue;
+						}
+					}
+					else
+						lastVerb = verb;    // so that connectors can work
 
-                    if (lastEnd != saveCount)
-                        verb.PrefixText = line.Substring(lastEnd, saveCount - lastEnd);
+					verb.PlayerContext = playerContext;
+					verb.EnvironmnetContext = environmentContext;
 
-                    lastEnd = count;
+					if(lastEnd != saveCount)
+						verb.PrefixText = line.Substring(lastEnd, saveCount - lastEnd);
 
-                    count += 1;
-                    bool done = false;
-                    while (!done && verb.Action.Arguments.Count > 0)
-                    {
-                        List<string> adjetives = new List<string>();
-                        if (count >= line.Length)
-                        {
-                            done = true;
-                            break;
-                        }
+					lastEnd = count;
 
-                        for (int a = 0; a < verb.Action.Arguments.Count; a++)
-                        {
-                            if (verb.Action.Arguments[a] == VerbArgumentTypes.Sentance) // easy out if they want the entire line
-                            {
-                                VerbArgument arg = new VerbArgument(VerbArgumentTypes.Sentance,line.Substring(count));
-                                verb.Arguments.Add(arg);
-                                results.Comands.Add(verb);
-                                return results;
-                            }
+					count += 1;
+					bool done = false;
 
-                            if (count >= line.Length)
-                            { 
-                                done = true;
-                                break;
-                            }
-                            int c = count;
+					while(!done && verb.Action.Arguments.Count > 0)
+					{
+						List<string> adjetives = new List<string>();
+						if(count >= line.Length)
+						{
+							done = true;
+							break;
+						}
 
-                            bool foundArg = false;
+						for(int a = 0; a < verb.Action.Arguments.Count; a++)
+						{
+							if(verb.Action.Arguments[a] == VerbArgumentTypes.Sentance) // easy out if they want the entire line
+							{
+								VerbArgument arg = new VerbArgument(VerbArgumentTypes.Sentance, line.Substring(count));
+								verb.Arguments.Add(arg);
+								results.Comands.Add(verb);
+								return results;
+							}
 
-                            while (!foundArg)
-                            {
-                                string argWord = ReadWord(line, ref count).Trim().ToLowerInvariant();
-                                lastEnd = count;
-                                count++;
+							if(count >= line.Length)
+							{
+								done = true;
+								break;
+							}
+							int c = count;
 
-                                if (argWord == string.Empty)
-                                    continue;
+							bool foundArg = false;
 
-                                VerbArgument arg = GetArgForWord(verb.Action.Arguments[a],argWord,adjetives,environmentContext,playerContext);
+							while(!foundArg)
+							{
+								string argWord = ReadWord(line, ref count).Trim().ToLowerInvariant();
+								lastEnd = count;
+								count++;
 
-                                if (arg == null)
-                                {
-                                    if (playerContext.Language.IsConnector(argWord))
-                                    {
-                                        foundArg = true;
-                                        done = true;
-                                        a = verb.Action.Arguments.Count;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        if (!playerContext.Language.IsFiller(argWord))
-                                            adjetives.Add(argWord);
-                                    }
-                                }
-                                else
-                                {
-                                    verb.Arguments.Add(arg);
-                                    foundArg = true;
-                                }
+								if(argWord == string.Empty)
+									continue;
 
-                                if (count >= line.Length || verb.Arguments.Count == verb.Action.Arguments.Count)
-                                {
-                                    done = true;
-                                    break;
-                                }
-                            }
+								VerbArgument arg = GetArgForWord(verb.Action.Arguments[a], argWord, adjetives, environmentContext, playerContext);
 
-                            if (done)
-                                break;
-                        }
-                    }
+								if(arg == null)
+								{
+									if(playerContext.Language.IsConnector(argWord))
+									{
+										foundArg = true;
+										done = true;
+										a = verb.Action.Arguments.Count;
+										break;
+									}
+									else
+									{
+										if(!playerContext.Language.IsFiller(argWord))
+											adjetives.Add(argWord);
+									}
+								}
+								else
+								{
+									verb.Arguments.Add(arg);
+									foundArg = true;
 
-                    results.Comands.Add(verb);
-                }
+									if(arg as VerbElementArgument != null)
+										playerContext.It = arg as VerbElementArgument;
+								}
+
+								if(count >= line.Length || verb.Arguments.Count == verb.Action.Arguments.Count)
+								{
+									done = true;
+									break;
+								}
+							}
+
+							if(done)
+								break;
+						}
+					}
+
+					results.Comands.Add(verb);
+				}
+				else
+					count++;
             }
             return results;
         }
@@ -205,6 +211,28 @@ namespace ParserTest.Parser
             if (Output != null)
                 Output.OutputIOLine(line);
         }
+
+		public static bool AcceptableArgumentSubstition(VerbArgumentTypes expectedType, VerbArgument actualArgument)
+		{
+			VerbElementArgument element = actualArgument as VerbElementArgument;
+
+			switch (expectedType)
+			{
+				case VerbArgumentTypes.Noun:
+				case VerbArgumentTypes.AnyItem:
+					return element != null;
+
+				case VerbArgumentTypes.Anything:
+					return true;
+
+				case VerbArgumentTypes.EnvironmentItem:
+					return element != null && !element.Element.IsOwned();
+
+				case VerbArgumentTypes.PersonalItem:
+					return element != null && element.Element.IsOwned(); 
+			}
+			return expectedType == element.ArgumentType;
+		}
 
         public static Verb FindVerb(string word)
         {
@@ -279,6 +307,21 @@ namespace ParserTest.Parser
 
         public static VerbArgument GetArgForWord(VerbArgumentTypes expectedType, string word, List<string> adjetives, DescriptionContext environment, ViewerContext viewer)
         {
+			if (viewer.Language.IsIt(word))
+			{
+				if (viewer.It != null)
+				{
+					if (AcceptableArgumentSubstition(expectedType,viewer.It))
+					{
+						VerbArgument sub = viewer.It.Clone();
+						sub.ArgumentType = expectedType;
+						return sub;
+					}
+				}
+
+				return null;
+			}
+
             switch (expectedType)
             {
                 case VerbArgumentTypes.Noun:
