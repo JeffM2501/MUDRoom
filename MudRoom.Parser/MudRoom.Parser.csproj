@@ -42,6 +42,8 @@
     <Compile Include="IParsable.cs" />
     <Compile Include="ParsableTypes.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Verb\IVerb.cs" />
+    <Compile Include="Verb\VerbArguments.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MudRoom.IO\MudRoom.IO.csproj">
