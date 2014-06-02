@@ -1,0 +1,18 @@
+Make more things intefaces so they can be appied to any object.
+Take a list of contexts
+
+Add AND support for multiple adjetives/subjects 
+	GET the Blue and Green swords. Tell Bob and Ann to Run
+	Make Command stream be a stack and be able to push stuff from an incomplete pending stack to a completed list. This will allow the ability to fill in missing arguents after the fact.
+
+Better THEM support
+	know that it means all items previously described
+
+Redefine Describables into better class heiraccy
+	Items
+	containers
+	Persons
+	Features
+	Exits
+
+Load Strings from somewhere
