@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E7088C0F-28A7-4360-ADA9-C6671128E5C0}</ProjectGuid>
+    <ProjectGuid>{7F3F6971-4F13-42BA-BA50-27F7B0EBCE7A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MudRoom.Parser</RootNamespace>
-    <AssemblyName>MudRoom.Parser</AssemblyName>
+    <RootNamespace>MudRoom.Actions</RootNamespace>
+    <AssemblyName>MudRoom.Actions</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,21 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandParser.cs" />
-    <Compile Include="IParsable.cs" />
-    <Compile Include="ParsableTypes.cs" />
-    <Compile Include="ParserResults.cs" />
+    <Compile Include="ActionList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MudRoom.Actions\MudRoom.Actions.csproj">
-      <Project>{7f3f6971-4f13-42ba-ba50-27f7b0ebce7a}</Project>
-      <Name>MudRoom.Actions</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MudRoom.IO\MudRoom.IO.csproj">
-      <Project>{fe59a737-7405-47a7-b573-f2665aa0ab61}</Project>
-      <Name>MudRoom.IO</Name>
-    </ProjectReference>
+    <Compile Include="VerbCache.cs" />
+    <Compile Include="Verbs\IVerb.cs" />
+    <Compile Include="Verbs\VerbArguments.cs" />
+    <Compile Include="Verbs\VerbInstance.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
