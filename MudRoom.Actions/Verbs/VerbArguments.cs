@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MudRoom.Parser.Verb
+namespace MudRoom.Actions.Verbs
 {
     public enum VerbArgumentTypes
     {
